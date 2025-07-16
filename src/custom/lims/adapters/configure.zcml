@@ -3,11 +3,19 @@
     i18n_domain="senaite.manufacture">
 
 <!-- Samples listing with additional filters and columns -->
-<!--  Samples listing with additional filters and columns  -->
+
 <subscriber
     for="bika.lims.browser.analysisrequest.AnalysisRequestsView
          bika.lims.interfaces.IAnalysisRequestsFolder"
     provides="senaite.core.listing.interfaces.IListingViewAdapter"
-    factory=".listing.SamplesListingAdapter" />
+    factory=".listing.SamplesListingViewAdapter" />
+
+<!--  
+<subscriber
+    for="bika.lims.browser.analysisrequest.AnalysisRequestAddView
+         bika.lims.interfaces.IAnalysisRequestsFolder"
+    provides="senaite.core.listing.interfaces.IListingViewAdapter"
+    factory=".listing.SamplesListingViewAdapter" />
+ -->
 
 </configure>

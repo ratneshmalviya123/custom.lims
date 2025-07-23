@@ -1,0 +1,30 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="senaite.patient">
+  <body>
+
+    <metal:widget define-macro="widget">
+      <input type="text"
+            name="${fieldName}:firstname"
+            value="${value/get('firstname', '')}"
+            placeholder="First Name" />
+      <input type="text"
+            name="${fieldName}:middlename"
+            value="${value/get('middlename', '')}"
+            placeholder="Middle Name" />
+      <input type="text"
+            name="${fieldName}:lastname"
+            value="${value/get('lastname', '')}"
+            placeholder="Last Name" />
+      <input type="text"
+            name="${fieldName}:second_lastname"
+            value="${value/get('second_lastname', '')}"
+            placeholder="Second Last Name" />
+    </metal:widget>
+
+
+  </body>
+</html>

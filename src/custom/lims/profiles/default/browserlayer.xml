@@ -2,6 +2,6 @@
 <layers>
   <layer
       name="custom.lims"
-      interface="custom.lims.interfaces.ICustomLimsLayer"
+      interface="custom.lims.interfaces.ICustomLims"
       />
 </layers>

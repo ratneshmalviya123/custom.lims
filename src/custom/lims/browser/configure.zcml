@@ -8,7 +8,7 @@
   <include package="z3c.jbot" file="meta.zcml" />
   <browser:jbot
       directory="overrides"
-      layer="custom.lims.interfaces.ICustomLimsLayer"
+      layer="custom.lims.interfaces.ICustomLims"
       />
 
   <!-- Publish static files -->

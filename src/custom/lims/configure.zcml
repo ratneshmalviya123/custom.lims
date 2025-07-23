@@ -17,28 +17,23 @@
   <include file="permissions.zcml" />
 
   <include package=".browser" />
-  <include package=".extenders" />
-
   <!-- 
-  <class class=".extenders.CustomAnalysisRequest">
-    <require
-        permission="zope2.View"
-        interface=".extenders.ICustomAnalysisRequest"
-    />
-  </class>
-  -->
+  <include package=".extenders" /> -->
+  <include package=".content" />
+
   
   <adapter
-    factory=".extenders.ExtraARFields"
+    factory=".content.sample.SampleSchemaExtender"
     provides="archetypes.schemaextender.interfaces.ISchemaExtender"
     for="bika.lims.interfaces.IAnalysisRequest"
   />
 
-  <!--
-   <subscriber
-    for="bika.lims.interfaces.IAnalysisRequest
-         zope.lifecycleevent.interfaces.IObjectCreatedEvent"
-    handler=".hooks.custom_ar_id_generator"/>
+  <adapter
+    factory=".content.sample.SampleSchemaModifier"
+    provides="archetypes.schemaextender.interfaces.ISchemaModifier"
+    for="bika.lims.interfaces.IAnalysisRequest"
+  />
+  <!-- 
   -->
 
   <subscriber

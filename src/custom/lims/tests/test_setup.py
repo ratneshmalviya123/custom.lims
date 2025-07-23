@@ -33,10 +33,10 @@ class TestSetup(unittest.TestCase):
 
     def test_browserlayer(self):
         """Test that ICustomLimsLayer is registered."""
-        from custom.lims.interfaces import ICustomLimsLayer
+        from custom.lims.interfaces import ICustomLims
         from plone.browserlayer import utils
 
-        self.assertIn(ICustomLimsLayer, utils.registered_layers())
+        self.assertIn(ICustomLims, utils.registered_layers())
 
 
 class TestUninstall(unittest.TestCase):
@@ -60,7 +60,7 @@ class TestUninstall(unittest.TestCase):
 
     def test_browserlayer_removed(self):
         """Test that ICustomLimsLayer is removed."""
-        from custom.lims.interfaces import ICustomLimsLayer
+        from custom.lims.interfaces import ICustomLims
         from plone.browserlayer import utils
 
-        self.assertNotIn(ICustomLimsLayer, utils.registered_layers())
+        self.assertNotIn(ICustomLims, utils.registered_layers())

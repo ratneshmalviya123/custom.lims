@@ -361,7 +361,7 @@ class SampleSchemaExtender(object):
             # write_permission=EditExtendedField,
             widget=DateTimeWidget(
                 label=_("Received Date"),
-                show_time=False,
+                show_time=True,
                 visible={
                     "add": "edit",
                     # "edit": "visible",
@@ -392,16 +392,37 @@ class SampleSchemaExtender(object):
         mode="rw",
         # read_permission=View,
         # write_permission=EditExtendedField,
-        widget=StringWidget(
+        vocabulary=["In good Condition", "Sample Rejected", "Other"],
+        widget=SelectionWidget(
+            format='select',
             label=_("Received Conditions"),
             visible={
                 "add": "edit",
-                "edit": "visible", 
-                "header_table": "visible", 
+                # "edit": "visible", 
+                "header_table": "prominent", 
             },
             description=_(""),
             render_own_label=True,
-        )),
+            )
+        ),
+        StringExtensionField(
+        "IsBilled",
+        mode="rw",
+        # read_permission=View,
+        # write_permission=EditExtendedField,
+        vocabulary=["No", "Yes", "Other"],
+        widget=SelectionWidget(
+            format='select',
+            label=_("Is client billed?"),
+            visible={
+                "add": "edit",
+                # "edit": "visible", 
+                "header_table": "prominent", 
+            },
+            description=_(""),
+            render_own_label=True,
+            )
+        ),
         StringExtensionField(
         "Workflow",
         mode="rw",

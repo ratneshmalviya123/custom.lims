@@ -4,6 +4,10 @@ from custom.lims.interfaces import ICustomLims  # your browser layer
 from custom.lims import messageFactory as _
 
 from bika.lims.interfaces import IAnalysisRequest
+# from senaite.lims.content.sample import Sample
+# from bika.lims.content.sample import Sample
+# from senaite.core.interfaces import ISample
+# from senaite.core.content.sample import Sample
 from DateTime import DateTime
 # from bika.lims.browser.widgets import DateWidget
 from bika.lims.browser.widgets import DateTimeWidget, SelectionWidget
@@ -19,6 +23,11 @@ from Products.Archetypes.Widget import IntegerWidget, StringWidget, ReferenceWid
 from Products.Archetypes.public import  StringField, StringWidget
 from Products.Archetypes.atapi import FileField
 from Products.Archetypes.atapi import FileWidget
+from AccessControl import getSecurityManager
+from copy import deepcopy
+import logging
+
+logger = logging.getLogger(__name__)
 # from Products.Archetypes.public import SelectionField, SelectionWidget
 
 # from custom.lims.content.fields import FullnameField
@@ -35,13 +44,17 @@ class ReferenceExtensionField(ExtensionField, ReferenceField):
     pass
 
 @implementer(IOrderableSchemaExtender)
-class SampleSchemaExtender(object):
+class BaseFieldExtender(object):
     """Schema extender for the Sample content type."""
     adapts(IAnalysisRequest)
     implements(ISchemaExtender)
+    cache = False
     # layer = ICustomLims
-
-    fields = [
+    
+    def __init__(self, context):
+        self.context = context
+        
+        self.fields = [
         StringExtensionField(
             "PlateID",
             mode="rw",
@@ -52,7 +65,7 @@ class SampleSchemaExtender(object):
                 visible={
                     "add": "edit",
                     "edit": "visible", 
-                    "header_table": "visible", 
+                    # "header_table": "visible", 
                 },
                 description=_("If Plate is submitted, enter Plate ID"),
                 render_own_label=True,
@@ -283,23 +296,6 @@ class SampleSchemaExtender(object):
                 },
                 )
             ),
-        # FullnameField(
-        #     "PatientFullName",
-        #     required=True,
-        #     # read_permission=View,
-        #     # write_permission=FieldEditFullName,
-        #     widget=FullnameWidget(
-        #         label=_("Patient name"),
-        #         entry_mode="parts",
-        #         view_format="%(firstname)s %(middlename)s %(lastname)s %(second_lastname)s",
-        #         render_own_label=True,
-        #         visible={
-        #             "add": "edit",
-        #             "edit": "visible", 
-        #             "header_table": "visible", 
-        #         }
-        #     )
-        # ),
         StringExtensionField(
             'ShippingCompany',
             mode="rw",
@@ -416,8 +412,9 @@ class SampleSchemaExtender(object):
             label=_("Is client billed?"),
             visible={
                 "add": "edit",
-                # "edit": "visible", 
-                "header_table": "prominent", 
+                "edit": "invisible" if is_client_role(context) else "visible",
+                "view": "invisible" if is_client_role(context) else "visible",
+                "header_table": "visible", 
             },
             description=_(""),
             render_own_label=True,
@@ -439,15 +436,34 @@ class SampleSchemaExtender(object):
             render_own_label=True,
         ))
     ]
-    
-    def __init__(self, context):
-        self.context = context
 
     def getOrder(self, schematas):
         return schematas
     
     def getFields(self):
-        return self.fields
+        user = getSecurityManager().getUser()
+        roles = []
+        
+        logger.info("Context class: %s", self.context.__class__)
+        
+        if self.context:
+            roles = user.getRolesInContext(self.context)
+        logger.info("Roles: %s" % roles)
+
+        client_roles = {"Client"}
+        is_client = any(role in client_roles for role in roles)
+
+        hide_for_clients = {"IsBilled"}
+
+        # Convert fields to a dict for direct access
+        field_map = {f.getName(): f for f in self.fields}
+
+        if is_client:
+            for field_name in hide_for_clients:
+                field_map.pop(field_name, None)  # Remove if it exists
+
+        return list(field_map.values())
+
 
         
 class SampleSchemaModifier(object):
@@ -479,3 +495,20 @@ class SampleSchemaModifier(object):
     
 def getCurrentDate(instance):
     return DateTime().Date()  # Just the date part
+
+
+def is_client_role(context):
+    user = getSecurityManager().getUser()
+    roles = user.getRolesInContext(context)
+    logger.info("Roles: %s" % roles)
+    return any(r in roles for r in ["Client", "LabClerk", "Sampler"])
+
+class ARSchemaExtender(BaseFieldExtender):
+    adapts(IAnalysisRequest)
+    implements(ISchemaExtender)
+    cache = False
+
+# class SampleSchemaExtender(BaseFieldExtender):
+#     adapts(Sample)
+#     implements(ISchemaExtender)
+#     cache = False

@@ -21,9 +21,15 @@
   <include package=".extenders" /> -->
   <include package=".content" />
 
-  
+  <!-- 
   <adapter
+    for="senaite.core.content.sample.Sample"
     factory=".content.sample.SampleSchemaExtender"
+    provides="archetypes.schemaextender.interfaces.ISchemaExtender"
+  /> -->
+
+  <adapter
+    factory=".content.sample.ARSchemaExtender"
     provides="archetypes.schemaextender.interfaces.ISchemaExtender"
     for="bika.lims.interfaces.IAnalysisRequest"
   />

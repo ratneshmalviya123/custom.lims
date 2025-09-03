@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from zope.component import adapts
 
 from custom.lims.interfaces import ICustomLims  # your browser layer
@@ -21,7 +23,7 @@ from archetypes.schemaextender.interfaces import ISchemaExtender, IBrowserLayerA
 from archetypes.schemaextender.field import ExtensionField
 from Products.Archetypes.Field import StringField, IntegerField, ReferenceField, DateTimeField
 from Products.Archetypes.Widget import IntegerWidget, StringWidget, ReferenceWidget, DateWidget
-from Products.Archetypes.public import  StringField, StringWidget
+from Products.Archetypes.public import  StringField, LinesField, TextField, StringWidget, TextAreaWidget
 from Products.Archetypes.atapi import FileField
 from Products.Archetypes.atapi import FileWidget
 from AccessControl import getSecurityManager
@@ -46,6 +48,9 @@ class IntegerExtensionField(ExtensionField, IntegerField):
 class DateExtensionField(ExtensionField, DateTimeField):
     pass
 class ReferenceExtensionField(ExtensionField, ReferenceField):
+    pass
+
+class LinesExtensionField(LinesField, ReferenceField):
     pass
 
 all_ars = []
@@ -117,17 +122,17 @@ def crawl_for_ars(obj):
     return result
 
 @implementer(IOrderableSchemaExtender)
-class BaseFieldExtender(object):
-    # adapts(IAnalysisRequest)
-    # implements(ISchemaExtender)
-    # cache = False
+class ARSchemaExtender(object):
+    adapts(IAnalysisRequest)
+    implements(ISchemaExtender)
+    cache = False
     # layer = ICustomLims
     
     def __init__(self, context):
         self.context = context
         self.can_edit = user_can_edit_extended(self.context)
         
-        self.fields = [
+        self.static_fields = [
         StringExtensionField(
             "PlateID",
             mode="rw",
@@ -426,8 +431,8 @@ class BaseFieldExtender(object):
         DateExtensionField(
             "ReceivedDate",
             mode="rw",
-            read_permission=EditExtendedField,
-            write_permission=EditExtendedField,
+            # read_permission=EditExtendedField,
+            # write_permission=EditExtendedField,
             widget=DateTimeWidget(
                 label=_("Received Date"),
                 show_time=True,
@@ -443,26 +448,11 @@ class BaseFieldExtender(object):
             default=DateTime(),  # Optional: sets the default to current date/time
             max=DateTime().Date()
         ),
-        FileField(
-        'ImageOnReceipt',
-        read_permission=EditExtendedField,
-        write_permission=EditExtendedField,
-        widget=FileWidget(
-            label=_("Image on Receipt of Sample "),
-            description=_("Add one or more images to describe how the samples were received"),
-            render_own_label=True,
-            visible={
-                'view': 'visible',
-                'add': 'edit',
-                'header_table': 'invisible',
-            },
-            )
-        ),
         StringExtensionField(
         "ReceivedConditions",
         mode="rw",
-        read_permission=EditExtendedField,
-        write_permission=EditExtendedField,
+        # read_permission=EditExtendedField,
+        # write_permission=EditExtendedField,
         vocabulary=["In good Condition", "Sample Rejected", "Other"],
         widget=SelectionWidget(
             format='select',
@@ -479,8 +469,8 @@ class BaseFieldExtender(object):
         StringExtensionField(
         "IsBilled",
         # mode="rw",
-        read_permission=EditExtendedField,
-        write_permission=EditExtendedField,
+        # read_permission=EditExtendedField,
+        # write_permission=EditExtendedField,
         vocabulary=["No", "Yes", "Other"],
         widget=SelectionWidget(
             format='select',
@@ -499,8 +489,8 @@ class BaseFieldExtender(object):
         StringExtensionField(
         "Workflow",
         mode="rw",
-        read_permission=EditExtendedField,
-        write_permission=EditExtendedField,
+        # read_permission=EditExtendedField,
+        # write_permission=EditExtendedField,
         widget=StringWidget(
             label=_("Workflow"),
             # visible={
@@ -510,7 +500,346 @@ class BaseFieldExtender(object):
             # },
             description=_(""),
             render_own_label=True,
-        ))
+        )),
+        StringExtensionField(
+            "CountRoomLog",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("Count Room Log#"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        StringExtensionField(
+            "Facility",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("Facility"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        StringExtensionField(
+            "RSR",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("RSR#"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        StringExtensionField(
+            "Location",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("Location"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        # StringExtensionField(
+        # "IsAreaPostedARA",
+        # mode="rw",
+        # # read_permission=EditExtendedField,
+        # # write_permission=EditExtendedField,
+        # vocabulary=["Yes", "No"],
+        # widget=SelectionWidget(
+        #     format='select',
+        #     label=_("AREA posted ARA?"),
+        #     # visible={
+        #     #     "add": "visible", 
+        #     #     "edit": "visible",
+        #     #     "view": "visible",
+        #     #     "view": "visible",
+        #     #     "header_table": "visible", 
+        #     # },
+        #     description=_(""),
+        #     render_own_label=True,
+        #     )
+        # ),
+        StringExtensionField(
+            "RWP",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("RWP"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        StringExtensionField(
+            "PF",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("PF"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        # StringExtensionField(
+        # "SelectArea",
+        # # mode="rw",
+        # # read_permission=EditExtendedField,
+        # # write_permission=EditExtendedField,
+        # vocabulary=["Breathing Zone", "General Area"],
+        # widget=SelectionWidget(
+        #     format='select',
+        #     label=_("Select One"),
+        #     # visible={
+        #     #     "add": "invisible" if is_client_contact(context) else "visible",
+        #     #     "edit": "invisible" if is_client_contact(context) else "visible",
+        #     #     "view": "invisible" if is_client_contact(context) else "visible",
+        #         # "view": "visible",
+        #     #     "header_table": "invisible" if is_client_contact(context) else "visible",
+        #     # },
+        #     description=_(""),
+        #     render_own_label=True,
+        #     )
+        # ),
+        LinesExtensionField(
+        "SelectArea",
+        vocabulary=["Breathing Zone", "General Area"],
+        multiValued=False,
+        widget=SelectionWidget(
+            format="radio",
+            label=_("Select One"),
+            # visible={
+            #     "add": "visible", 
+            #     "edit": "visible",
+            #     "view": "visible",
+            #     "view": "visible",
+            #     "header_table": "visible", 
+            # },
+            description=_(""),
+            render_own_label=True,
+            )
+        ),
+        TextField(
+            "WorkPackage",
+            required=False,
+            searchable=True,
+            default_content_type="text/plain",
+            default_output_type="text/plain",
+            widget=TextAreaWidget(
+                label=_("Work Package"),
+                description=_("Provide detailed information about the sample"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible",
+                    "header_table": "visible",
+                },
+                render_own_label=True,
+                rows=5,     # controls height
+                cols=40,    # controls width
+            ),
+        ),
+        LinesExtensionField(
+        "AdditionalSampleInfo",
+        mode="rw",
+        # read_permission=EditExtendedField,
+        # write_permission=EditExtendedField,
+        multiValued=True,
+        vocabulary=["Job-Specific CAM", "Job-Specific Grab Air", "Verify Respiratory Protection", 
+                    "Verify Engineeering Controls", "Downposting ARA", "Lapel"],
+        widget=SelectionWidget(
+            format='select',
+            label=_("Additional Sample Info"),
+            # visible={
+            #     "add": "invisible" if is_client_contact(context) else "visible",
+            #     "edit": "invisible" if is_client_contact(context) else "visible",
+            #     "view": "invisible" if is_client_contact(context) else "visible",
+                # "view": "visible",
+            #     "header_table": "invisible" if is_client_contact(context) else "visible",
+            # },
+            description=_(""),
+            # render_own_label=True,
+            )
+        ),
+        StringExtensionField(
+            "SamplerSerial",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("Sampler Serial #"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        DateExtensionField(
+            "OnDate",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=DateTimeWidget(
+                label=_("On"),
+                show_time=True,
+                visible={
+                    "add": "edit",
+                    # "edit": "visible",
+                    'secondary': 'disabled',
+                    "header_table": "prominent"
+                },
+                render_own_label=True,
+                description=_(""),
+            ),
+            default=DateTime(),  # Optional: sets the default to current date/time
+            max=DateTime().Date()
+        ),
+        StringExtensionField(
+            "OnFlow",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("Flow"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        StringExtensionField(
+            "OnName",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("Name"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        DateExtensionField(
+            "OffDate",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=DateTimeWidget(
+                label=_("Off"),
+                show_time=True,
+                visible={
+                    "add": "edit",
+                    # "edit": "visible",
+                    'secondary': 'disabled',
+                    "header_table": "prominent"
+                },
+                render_own_label=True,
+                description=_(""),
+            ),
+            default=DateTime(),  # Optional: sets the default to current date/time
+            max=DateTime().Date()
+        ),
+        StringExtensionField(
+            "OffFlow",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("Flow"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        StringExtensionField(
+            "OffName",
+            mode="rw",
+            # read_permission=View,
+            # write_permission=EditExtendedField,
+            widget=StringWidget(
+                label=_("Name"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible", 
+                    "header_table": "visible", 
+                },
+                # placeholder=_("SecondLastName"),
+                render_own_label=True,
+        )),
+        TextField(
+            "JobDescription",
+            required=False,
+            searchable=True,
+            default_content_type="text/plain",
+            default_output_type="text/plain",
+            widget=TextAreaWidget(
+                label=_("Job Description"),
+                description=_("Provide detailed information about the sample"),
+                visible={
+                    "add": "edit",
+                    "edit": "visible",
+                    "header_table": "visible",
+                },
+                render_own_label=True,
+                rows=5,     # controls height
+                cols=40,    # controls width
+            ),
+        ),
+        # LinesField(
+        #     "TestCheckbox",
+        #     vocabulary=["Patient ID", "National ID", "Passport ID", "Driver ID", "Votor ID"],
+        #     multiValued=True,   # allow multiple values
+        #     widget=SelectionWidget(
+        #         label=_("Multi Check"),
+        #         description=_("Select one or more sample types"),
+        #         format="checkbox",   # <-- CHECKBOXES, not dropdown
+        #         visible={
+        #             "add": "edit",
+        #             "edit": "visible",
+        #             "header_table": "visible",
+        #         },
+        #     ),
+        # )
+
     ]
           
 
@@ -518,13 +847,66 @@ class BaseFieldExtender(object):
         return schematas
     
     def getFields(self):
-        try:
+        # try:
             # reindex_all_ars()
-            user = getSecurityManager().getUser()
-            roles = user.getRolesInContext(self.context) if self.context else []
+        user = getSecurityManager().getUser()
+        roles = user.getRolesInContext(self.context) if self.context else []
+        logger.info("User ID: %s", getattr(user, 'getId', lambda: 'unknown')())
+        logger.info("Context class: %s", self.context.__class__)
+        logger.info("Roles: %s", roles)
+        logger.info("User can edit extended fields: %s", user_can_edit_extended(self.context))
+        
+        # if user_can_edit_extended(self.context):
+        #     logger.info("User can edit extended fields, adding dynamic fields:")
+        dynamic_fields = [
+            FileField(
+                'ImageOnReceiptDynamic',
+                required=False,
+                # read_permission=EditExtendedField,
+                # write_permission=EditExtendedField,
+                widget=FileWidget(
+                    label=_("Image on Receipt of Sample "),
+                    description=_("Add one or more images to describe how the samples were received"),
+                    render_own_label=True,
+                    show_on_create=True,
+                    visible={
+                        "view": "visible",
+                        "add": "visible",
+                        "edit": "visible", 
+                        # "header_table": "prominent", 
+                    },
+                ),
+            ),
+            LinesExtensionField(
+                "IsAreaPostedARA",
+                vocabulary=["Yes","No"],
+                # multiValued=False,
+                widget=SelectionWidget(
+                    format="radio",
+                    label=_("AREA posted ARA?"),
+                    show_on_create=True,
+                    visible={
+                        "add": "visible", 
+                        "edit": "visible",
+                        "view": "visible",
+                        # "header_table": "visible", 
+                    },
+                    description=_(""),
+                    render_own_label=True,
+                )
+            ),
+        ]
+            # else:
+            #     dynamic_fields = []
 
-            logger.info("Context class: %s", self.context.__class__)
-            logger.info("Roles: %s", roles)
+        # except Exception as e:
+        #     logger.error("Error in getFields: %s", e)
+        #     return []  # Return empty list on failure
+        # return self.fields
+            # Both static and dynamic fields go here
+        logger.info("Final field names: %s", [f.__name__ for f in self.static_fields + dynamic_fields])
+        return self.static_fields + dynamic_fields
+        
 
         #     site = getSite()
         #     logger.info("Site object: %s", site)
@@ -566,11 +948,7 @@ class BaseFieldExtender(object):
         #             field_map.pop(field_name, None)
 
         #     return list(field_map.values())
-
-        except Exception as e:
-            logger.error("Error in getFields: %s", e)
-            return []  # Return empty list on failure
-        return self.fields
+        
 
 
 
@@ -592,11 +970,13 @@ class SampleSchemaModifier(object):
         # schema['Contact'].required = False
 
         # schema['SampleType'].required = True
-        schema['ClientSampleID'].required = True
+        schema['ClientSampleID'].required = False
+        schema['SampleType'].required = False
         schema['SampleType'].widget.label = _("Sample Origin")
         schema['SampleType'].widget.description = _("Where the sample was collected from")
         schema['DateSampled'].widget.show_time = False
         schema['SamplingDate'].widget.label = _("Expected Delivery of Results")
+        # schema['Sampler'].widget.label = _("Sampler Serial #")
         # profiles = schema.get("Profiles")
         # profiles.required = True
 
@@ -624,12 +1004,15 @@ def is_client_contact(context):
 
 def user_can_edit_extended(context):
     sm = getSecurityManager()
-    return sm.checkPermission('hoch.lims: Field: Edit Extended Field', context)
+    return sm.checkPermission(EditExtendedField, context)
+    # mtool = getToolByName(context, 'portal_membership')
+    # user = mtool.getAuthenticatedMember()
+    # return user.has_permission('EditExtendedField', self.context)
 
-class ARSchemaExtender(BaseFieldExtender):
-    adapts(IAnalysisRequest)
-    implements(ISchemaExtender)
-    cache = False
+# class ARSchemaExtender(BaseFieldExtender):
+#     adapts(IAnalysisRequest)
+#     implements(ISchemaExtender)
+#     cache = False
 
 # class SampleSchemaExtender(BaseFieldExtender):
 #     adapts(Sample)
